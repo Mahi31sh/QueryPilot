@@ -8,7 +8,7 @@ Ask questions about a PostgreSQL database in plain English. QueryPilot retrieves
 
 ## Demo
 
-[![Watch the QueryPilot demo ](docs/screenshots/query-interface.png)](https://drive.google.com/file/d/1WiFDdPuK8mWqYeYjtMcccDUVewD44B9o/view?usp=drive_link)
+[![Watch the QueryPilot demo ](docs/screenshots/query-interface.png)](https://drive.google.com/file/d/1WiFDdPuK8mWqYeYjtMcccDUVewD44B9o/view?usp=sharing)
 
 *Click to watch the 2 min 50 s walkthrough: asking a question in English, the generated SQL, the chart, and a destructive request being blocked.*
 
