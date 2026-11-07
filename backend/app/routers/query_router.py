@@ -1,3 +1,4 @@
+
 """
 The core endpoint: natural language question in, SQL + results + chart out.
 This is where every service module comes together.
@@ -16,6 +17,7 @@ from app.services.sql_generator import explain_sql
 from app.services.chart_generator import build_chart_spec
 from app.services.history_service import log_query
 from app.exceptions import QueryPilotException
+from app.services.intent_guard import check_query_intent
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/query", tags=["query"])
@@ -29,11 +31,24 @@ def run_query(
 ):
     question = request.question.strip()
 
+    # Block destructive requests before schema retrieval or LLM generation.
+    try:
+        check_query_intent(question)
+    except ValueError as exc:
+        log_query(
+            db, current_user.id, question, generated_sql="", explanation="",
+            success=False, error_message=str(exc), retry_count=0,
+            row_count=None, chart_type=None,
+        )
+        raise QueryPilotException(str(exc))
+
     schema_context = retrieve_schema_context(question)
     known_tables = get_known_table_names(question)
 
     try:
-        result = run_query_with_self_correction(question, schema_context, known_tables)
+        result = run_query_with_self_correction(
+            question, schema_context, known_tables
+        )
     except QueryPilotException as exc:
         log_query(
             db, current_user.id, question, generated_sql="", explanation="",
