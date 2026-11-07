@@ -5,10 +5,9 @@ Ask questions about a PostgreSQL database in plain English. QueryPilot retrieves
 > Status: runs locally. Not deployed. The demo database is a small e-commerce dataset (5 tables).
 
 [Demo](#demo) · [Screenshots](#screenshots) · [Architecture](#architecture) · [Run locally](#installation)
-
 ## Demo
 
-[![Watch the QueryPilot demo ](docs/screenshots/query-interface.png)](https://drive.google.com/file/d/1WiFDdPuK8mWqYeYjtMcccDUVewD44B9o/view?usp=sharing)
+[![Watch the QueryPilot demo](docs/screenshots/chat.jpeg)](https://drive.google.com/file/d/1WiFDdPuK8mWqYeYjtMcccDUVewD44B9o/view?usp=sharing)
 
 *Click to watch the 2 min 50 s walkthrough: asking a question in English, the generated SQL, the chart, and a destructive request being blocked.*
 
@@ -26,9 +25,6 @@ Ask questions about a PostgreSQL database in plain English. QueryPilot retrieves
 
 ![Dashboard](docs/screenshots/dashboard.jpeg)
 
-**Dashboard**
-
-![Dashboard](docs/screenshots/dashboard.png)
 ## Problem
 
 Business users cannot query a database without knowing SQL, and handing an LLM unrestricted database access is unsafe: it can generate destructive statements, reference tables that do not exist, or return unbounded results.
