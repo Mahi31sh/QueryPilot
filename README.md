@@ -14,13 +14,17 @@ Ask questions about a PostgreSQL database in plain English. QueryPilot retrieves
 
 ## Screenshots
 
-**Login and registration**
+**Login and Registration**
 
-![Login and registration](docs/screenshots/login.png)
+![Login and Registration](docs/screenshots/login.jpeg)
 
-**Query interface and SQL results**
+**Query Interface and SQL Results**
 
-![Query interface and SQL results](docs/screenshots/query-interface.png)
+![Query Interface and SQL Results](docs/screenshots/chat.jpeg)
+
+**Dashboard**
+
+![Dashboard](docs/screenshots/dashboard.jpeg)
 
 **Dashboard**
 
