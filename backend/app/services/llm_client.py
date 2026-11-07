@@ -1,5 +1,5 @@
 """
-Thin wrapper around Groq's API (free-tier Llama 3.3).
+Thin wrapper around Groq's chat completions API (model set via LLM_MODEL).
 Isolating this means swapping to Gemini/OpenAI later is a one-file change
 everywhere else in the app just calls llm_client.generate().
 """

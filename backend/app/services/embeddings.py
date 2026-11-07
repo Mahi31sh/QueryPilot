@@ -1,7 +1,13 @@
 
 """
-Builds a FAISS schema index during development and retrieves relevant
-schema chunks at runtime using lightweight keyword matching.
+Builds a FAISS schema index and retrieves the schema chunks most relevant
+to a question at runtime.
+
+Retrieval modes (settings.retrieval_mode):
+  - "vector":  embed the question and search the FAISS index (cosine
+               similarity via normalized inner product). Falls back to
+               keyword matching if the index or embedding model fails.
+  - "keyword": term-overlap scoring only; never loads the embedding model.
 """
 import json
 import logging
@@ -98,11 +104,32 @@ def load_schema_metadata() -> list[dict]:
         return json.load(f)
 
 
-def search_schema(query: str, top_k: int = 4) -> list[dict]:
-    """
-    Lightweight retrieval for low-memory deployment.
-    Scores schema chunks by matching question terms against their text.
-    """
+@lru_cache(maxsize=256)
+def _embed_query(query: str) -> np.ndarray:
+    """Embed a question once; repeated lookups for the same question are free."""
+    return embed_texts([query])
+
+
+def _vector_search(query: str, top_k: int) -> list[dict]:
+    index, metadata = load_schema_index()
+    k = min(max(top_k, 0), index.ntotal)
+    if k == 0:
+        return []
+
+    scores, ids = index.search(_embed_query(query), k)
+
+    results = []
+    for score, idx in zip(scores[0], ids[0]):
+        if idx < 0 or idx >= len(metadata):
+            continue
+        chunk = metadata[idx].copy()
+        chunk["similarity"] = float(score)
+        results.append(chunk)
+    return results
+
+
+def _keyword_search(query: str, top_k: int) -> list[dict]:
+    """Scores schema chunks by matching question terms against their text."""
     metadata = load_schema_metadata()
     terms = set(re.findall(r"[a-zA-Z_][a-zA-Z_0-9]*", query.lower()))
 
@@ -126,3 +153,15 @@ def search_schema(query: str, top_k: int = 4) -> list[dict]:
 
     scored.sort(key=lambda item: (-item[0], item[1]))
     return [item[2] for item in scored[:max(0, top_k)]]
+
+
+def search_schema(query: str, top_k: int = 4) -> list[dict]:
+    """Return the top_k schema chunks most relevant to the question."""
+    if settings.retrieval_mode == "vector":
+        try:
+            return _vector_search(query, top_k)
+        except Exception as exc:  # missing index, model download failure, etc.
+            logger.warning(
+                "Vector retrieval failed (%s); falling back to keyword retrieval.", exc
+            )
+    return _keyword_search(query, top_k)

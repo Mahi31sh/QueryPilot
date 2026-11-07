@@ -29,9 +29,12 @@ _target_engine: Engine = create_engine(
 def _execute_raw(sql: str) -> tuple[list[str], list[dict]]:
     with _target_engine.begin() as conn:
         conn.execute(text("SET TRANSACTION READ ONLY"))
+        # SET LOCAL lasts only for this transaction; int() guards the f-string.
+        conn.execute(text(f"SET LOCAL statement_timeout = {int(settings.statement_timeout_ms)}"))
         result = conn.execute(text(sql))
         columns = list(result.keys())
-        rows = [dict(zip(columns, row)) for row in result.fetchall()]
+        # Hard row cap, independent of whatever LIMIT the SQL text contains.
+        rows = [dict(zip(columns, row)) for row in result.fetchmany(settings.max_query_rows)]
         return columns, rows
 
 
